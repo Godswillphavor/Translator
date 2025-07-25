@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransLingo - English to Spanish Translator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .translation-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-section, .output-section {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .input-section:focus-within {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flag {
+            font-size: 1.5em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            color: #334155;
+        }
+
+        .output-text {
+            min-height: 200px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #334155;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .swap-btn {
+            background: #06b6d4;
+            color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 20px;
+            align-self: center;
+        }
+
+        .swap-btn:hover {
+            background: #0891b2;
+            transform: rotate(180deg);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #334155;
+        }
+
+        .feature-desc {
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #dc2626;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .translation-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .swap-btn {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TransLingo</h1>
+            <p>Professional English ↔ Spanish Translation Service</p>
+        </div>
+
+        <div class="main-content">
+            <div class="translation-container">
+                <div class="input-section">
+                    <div class="section-title">
+                        <span class="flag" id="source-flag">🇺🇸</span>
+                        <span id="source-lang">English</span>
+                    </div>
+                    <textarea 
+                        id="source-text" 
+                        placeholder="Enter text to translate..."
+                        maxlength="5000"
+                    ></textarea>
+                    <div style="text-align: right; font-size: 12px; color: #64748b; margin-top: 5px;">
+                        <span id="char-count">0</span>/5000 characters
+                    </div>
+                </div>
+
+                <div class="output-section">
+                    <div class="section-title">
+                        <span class="flag" id="target-flag">🇪🇸</span>
+                        <span id="target-lang">Spanish</span>
+                    </div>
+                    <div id="target-text" class="output-text">
+                        Translation will appear here...
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="translate-btn">
+                    🔄 Translate
+                </button>
+                <button class="btn swap-btn" id="swap-btn" title="Swap Languages">
+                    ⇄
+                </button>
+                <button class="btn btn-secondary" id="clear-btn">
+                    🗑️ Clear
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <p>🔄 Translating your text...</p>
+            </div>
+
+            <div class="error" id="error">
+                <p id="error-message"></p>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <div class="feature-title">Instant Translation</div>
+                    <div class="feature-desc">Get accurate translations between English and Spanish in real-time using advanced Google Translate API.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <div class="feature-title">Bidirectional Support</div>
+                    <div class="feature-desc">Seamlessly translate from English to Spanish or Spanish to English with one click.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title">Responsive Design</div>
+                    <div class="feature-desc">Works perfectly on all devices - desktop, tablet, and mobile for translation on the go.</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">Fast & Reliable</div>
+                    <div class="feature-desc">Lightning-fast translations with high accuracy powered by Google's machine learning technology.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TranslationApp {
+            constructor() {
+                this.isEnglishToSpanish = true;
+                this.initializeElements();
+                this.bindEvents();
+                this.updateUI();
+            }
+
+            initializeElements() {
+                this.sourceText = document.getElementById('source-text');
+                this.targetText = document.getElementById('target-text');
+                this.translateBtn = document.getElementById('translate-btn');
+                this.swapBtn = document.getElementById('swap-btn');
+                this.clearBtn = document.getElementById('clear-btn');
+                this.loading = document.getElementById('loading');
+                this.error = document.getElementById('error');
+                this.errorMessage = document.getElementById('error-message');
+                this.charCount = document.getElementById('char-count');
+                this.sourceLang = document.getElementById('source-lang');
+                this.targetLang = document.getElementById('target-lang');
+                this.sourceFlag = document.getElementById('source-flag');
+                this.targetFlag = document.getElementById('target-flag');
+            }
+
+            bindEvents() {
+                this.translateBtn.addEventListener('click', () => this.translate());
+                this.swapBtn.addEventListener('click', () => this.swapLanguages());
+                this.clearBtn.addEventListener('click', () => this.clearText());
+                this.sourceText.addEventListener('input', () => this.updateCharCount());
+                this.sourceText.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                        this.translate();
+                    }
+                });
+            }
+
+            updateCharCount() {
+                const count = this.sourceText.value.length;
+                this.charCount.textContent = count;
+            }
+
+            updateUI() {
+                if (this.isEnglishToSpanish) {
+                    this.sourceLang.textContent = 'English';
+                    this.targetLang.textContent = 'Spanish';
+                    this.sourceFlag.textContent = '🇺🇸';
+                    this.targetFlag.textContent = '🇪🇸';
+                    this.sourceText.placeholder = 'Enter English text to translate...';
+                } else {
+                    this.sourceLang.textContent = 'Spanish';
+                    this.targetLang.textContent = 'English';
+                    this.sourceFlag.textContent = '🇪🇸';
+                    this.targetFlag.textContent = '🇺🇸';
+                    this.sourceText.placeholder = 'Ingrese texto en español para traducir...';
+                }
+            }
+
+            swapLanguages() {
+                this.isEnglishToSpanish = !this.isEnglishToSpanish;
+                
+                // Swap the text content
+                const sourceValue = this.sourceText.value;
+                const targetValue = this.targetText.textContent;
+                
+                if (targetValue && targetValue !== 'Translation will appear here...') {
+                    this.sourceText.value = targetValue;
+                    this.targetText.textContent = sourceValue || 'Translation will appear here...';
+                }
+                
+                this.updateUI();
+                this.updateCharCount();
+                this.hideError();
+            }
+
+            clearText() {
+                this.sourceText.value = '';
+                this.targetText.textContent = 'Translation will appear here...';
+                this.updateCharCount();
+                this.hideError();
+                this.sourceText.focus();
+            }
+
+            showLoading() {
+                this.loading.classList.add('show');
+                this.translateBtn.disabled = true;
+                this.translateBtn.innerHTML = '⏳ Translating...';
+            }
+
+            hideLoading() {
+                this.loading.classList.remove('show');
+                this.translateBtn.disabled = false;
+                this.translateBtn.innerHTML = '🔄 Translate';
+            }
+
+            showError(message) {
+                this.errorMessage.textContent = message;
+                this.error.classList.add('show');
+            }
+
+            hideError() {
+                this.error.classList.remove('show');
+            }
+
+            async translate() {
+                const text = this.sourceText.value.trim();
+                
+                if (!text) {
+                    this.showError('Please enter some text to translate.');
+                    return;
+                }
+
+                this.hideError();
+                this.showLoading();
+
+                try {
+                    const translatedText = await this.callRealTranslationAPI(text);
+                    this.targetText.textContent = translatedText;
+                    
+                } catch (error) {
+                    this.showError('Translation failed. Please try again.');
+                    console.error('Translation error:', error);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async callRealTranslationAPI(text) {
+                // 🔑 RapidAPI - Microsoft Translator (WORKING OPTION)
+                const RAPIDAPI_KEY = '1f46ba82e2msh67dcb50bfcad41cp1e9534jsn9937bf6fa4a7';
+                const RAPIDAPI_HOST = 'microsoft-translator-text.p.rapidapi.com';
+                
+                // Figure out what languages we're using
+                const sourceLang = this.isEnglishToSpanish ? 'en' : 'es';
+                const targetLang = this.isEnglishToSpanish ? 'es' : 'en';
+                
+                // Microsoft Translator endpoint on RapidAPI
+                const apiUrl = `https://microsoft-translator-text.p.rapidapi.com/translate?api-version=3.0&from=${sourceLang}&to=${targetLang}`;
+                
+                // Create the request body (Microsoft format)
+                const requestBody = [
+                    {
+                        'text': text
+                    }
+                ];
+                
+                // Make the API call with correct RapidAPI headers
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-RapidAPI-Key': RAPIDAPI_KEY,
+                        'X-RapidAPI-Host': RAPIDAPI_HOST,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                // Check if it worked
+                if (!response.ok) {
+                    throw new Error(`Translation failed: ${response.status}`);
+                }
+                
+                // Get the translation
+                const data = await response.json();
+                return data[0].translations[0].text;
+            }
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new TranslationApp();
+        });
+    </script>
+</body>
+</html>
